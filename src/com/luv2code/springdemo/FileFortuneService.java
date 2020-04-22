@@ -8,48 +8,62 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.stereotype.Component;
 
 @Component
 public class FileFortuneService implements FortuneService {
 
-	private String fileName = "C:/Users/Ling Sang 2/eclipse-workspace/foobar/fortune-data";
-	private List<String> theFortunes;
+        // private String fileName ;
+        private String fileName = "C:/Users/Ling Sang 2/eclipse-workspace/foobar/fortune-data";
+        private List<String> theFortunes;
 
-	private Random myRandom = new Random();
+        // create a random number generator
+        private Random myRandom = new Random();
 
-	public FileFortuneService() {
+        public FileFortuneService() {
 
-		File theFile = new File(fileName);
+                System.out.println(">> FileFortuneService: inside default constructor");
+                
+        }
 
-		System.out.println("Reading fortunes from file: " + theFile);
-		System.out.println("File exists: " + theFile.exists());
+        @PostConstruct
+        private void loadTheFortunesFile() {
+                
+                System.out.println(">> FileFortuneService: inside method loadTheFortunesFile");
 
-		// initialize array list
-		theFortunes = new ArrayList<String>();
+                File theFile = new File(fileName);
+                
+                System.out.println("Reading fortunes from file: " + theFile);
+                System.out.println("File exists: " + theFile.exists());
+                
+                // initialize array list
+                theFortunes = new ArrayList<String>();
+                
+                // read fortunes from file
+                try (BufferedReader br = new BufferedReader(
+                                new FileReader(theFile))) {
 
-		// read fortunes from file
-		try (BufferedReader br = new BufferedReader(new FileReader(theFile))) {
+                        String tempLine;
 
-			String tempLine;
+                        while ((tempLine = br.readLine()) != null) {
+                                theFortunes.add(tempLine);
+                        }
+                        
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+        }
 
-			while ((tempLine = br.readLine()) != null) {
-				theFortunes.add(tempLine);
-			}
+        @Override
+        public String getFortune() {
+                // pick a random string from the array
+                int index = myRandom.nextInt(theFortunes.size());
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+                String tempFortune = theFortunes.get(index);
 
-	@Override
-	public String getFortune() {
-		// pick a random string from the array
-		int index = myRandom.nextInt(theFortunes.size());
-
-		String tempFortune = theFortunes.get(index);
-
-		return tempFortune;
-	}
+                return tempFortune;
+        }
 
 }
